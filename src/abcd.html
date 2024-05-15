@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Stacked bar chart</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+      }
+      .chartMenu {
+        width: 100vw;
+        height: 40px;
+        background: #1A1A1A;
+        color: rgba(54, 162, 235, 1);
+      }
+      .chartMenu p {
+        padding: 10px;
+        font-size: 20px;
+      }
+      .chartCard {
+        width: 100vw;
+        height: calc(100vh - 40px);
+        background: rgba(54, 162, 235, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .chartBox {
+        width: 700px;
+        padding: 20px;
+        border-radius: 20px;
+        border: solid 3px rgba(54, 162, 235, 1);
+        background: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chartMenu">
+      <p>WWW.CHARTJS3.COM (Chart JS <span id="chartVersion"></span>)</p>
+    </div>
+    <div class="chartCard">
+      <div class="chartBox">
+        <canvas id="myChart"></canvas>
+      </div>
+    </div>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js" integrity="sha512-JPcRR8yFa8mmCsfrw4TNte1ZvF1e3+1SdGMslZvmrzDYxS69J7J49vkFL8u6u8PlPJK+H3voElBtUCzaXj+6ig==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+    // setup 
+    const data = {
+      labels: ['G7','YV','C5','OO','YX'],
+      datasets: [{
+        label: 'Red Sales',
+        data: [10,15,7,8,6],
+        backgroundColor: [
+          'rgba(255, 26, 104, 0.2)',
+          
+        ],
+        borderColor: [
+          'rgba(255, 26, 104, 1)',
+        ],
+        borderWidth: 1
+      },
+      {
+        label: 'Black Sales',
+        data: [33,24,22,19,13],
+        backgroundColor: [
+          'rgba(153, 102, 255, 0.2)',
+        ],
+        borderColor: [
+          'rgba(153, 102, 255, 1)',
+        ],
+        borderWidth: 1
+      }]
+    };
+
+    const topLabels = {
+      id : 'topLabels',
+      afterDatasetsDraw(chart,args,pluginOptons){
+         const {ctx , scales : {x,y}} = chart;
+         chart.data.datasets[0].data.forEach((datapoint,index)=>{
+            const datasetArray = [];
+
+            chart.data.datasets.forEach((dataset)=>{
+               datasetArray.push(dataset.data[index])
+            })
+            console.log(datasetArray)
+
+            // sum array
+            function totalSum(total,values){
+               return total + values;
+            };
+            let sum = datasetArray.reduce(totalSum,0)
+            console.log(sum)
+
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillStyle = 'rgba(255,26,104,1)';
+            ctx.textAlign = 'center';
+            ctx.fillText(sum,x.getPixelForValue(index),chart.getDatasetMeta(1).data[index].y -10)
+         })
+      }
+    }
+    // config 
+    const config = {
+      type: 'bar',
+      data,
+      options: {
+        scales: {
+         x : {
+           stacked :true
+         },
+          y: {
+            stacked:true,
+            beginAtZero: true,
+            grace : 4
+          }
+        }
+      },
+     plugins:[ChartDataLabels ,topLabels]
+    };
+
+    // render init block
+    const myChart = new Chart(
+      document.getElementById('myChart'),
+      config
+    );
+
+    // Instantly assign Chart.js version
+    const chartVersion = document.getElementById('chartVersion');
+    chartVersion.innerText = Chart.version;
+    </script>
+
+  </body>
+</html>
